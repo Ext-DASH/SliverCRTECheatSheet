@@ -94,7 +94,7 @@ If copy pasting, ensure to include the openning and closing ticks
 | ```'--search "(OU=SomeOU)" --attributes distinguishedname'``` | Enumerate DistinguishedName for SomeOU
 | ```'--search "(objectCategory=groupPolicyContainer)" --attributes displayname'``` | Enumerate GPO's
 | ```'--search "(OU=SomeOU)" --attributes gplink'``` | Enumerate GPOs applied to SomeOU. This is step one
-| ```'--search "(&(objectCategory=groupPolicyContainer)(|(name={gplink ID})))" --attributes displayname'``` | copy paste found gpLink in name={}. This is step two
+| ```'--search "(&(objectCategory=groupPolicyContainer)((name={gplink ID})))" --attributes displayname'``` | copy paste found gpLink in name={}. This is step two. *NOTE:* (|(name={gplink ID}))) is the proper format
 | ```'-d some.domain.local --search "(objectClass=trustedDomain)" --attributes cn,flatName,trustDirection,trustPartner,name,objectClass,trustAttributes --json'``` | Map trusts of some.domain.local. We can add the --json arg to give us the results in json format for readibility |
 | ```'-d some.domain.local --search "(trustAttributes=4)" --attributes cn,flatName,trustDirection,trustPartner,name,objectClass,trustAttributes --json'``` | Map External Trusts |
 | ```'-d some.trust.local --search "(objectClass=trustedDomain)" --attributes cn,flatName,trustDirection,trustPartner,name,objectClass,trustAttributes --json'``` | Enumerate trusts of a trusting forest |
