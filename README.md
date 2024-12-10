@@ -72,9 +72,9 @@ execute-assembly -A /RuntimeWide -d TaskSchedulerRegularMaintenanceDomain -p 'C:
 #### Processes, app-domains, and process-arguments
 ##### Notes
 
--In the .NET framework, an AppDomain is a lightweight process-like boundary inside a running process. When you specify an AppDomain name, you’re telling the runtime environment how to label the isolated environment in which your assembly will execute. Using a custom or “benign”-looking AppDomain name can help you blend in with normal .NET activity on the target system.
--Many .NET assemblies are console applications that expect certain arguments to be passed when they start. By supplying these arguments via Sliver’s -A option, you provide the command-line parameters that the assembly’s Main() method would normally receive if it were started as a standalone program. Customizing these arguments to appear normal or to match expected parameters can reduce suspicion.
--Security tools may flag suspicious assembly execution based on known signatures or patterns. If you just run a known offensive tool without specifying a thoughtful AppDomain name or without the correct arguments, it might get flagged as abnormal. By using a more “legitimate”-looking AppDomain name and proper arguments, you can reduce the anomaly score in certain behavioral detection engines.
+- In the .NET framework, an AppDomain is a lightweight process-like boundary inside a running process. When you specify an AppDomain name, you’re telling the runtime environment how to label the isolated environment in which your assembly will execute. Using a custom or “benign”-looking AppDomain name can help you blend in with normal .NET activity on the target system.
+- Many .NET assemblies are console applications that expect certain arguments to be passed when they start. By supplying these arguments via Sliver’s -A option, you provide the command-line parameters that the assembly’s Main() method would normally receive if it were started as a standalone program. Customizing these arguments to appear normal or to match expected parameters can reduce suspicion.
+- Security tools may flag suspicious assembly execution based on known signatures or patterns. If you just run a known offensive tool without specifying a thoughtful AppDomain name or without the correct arguments, it might get flagged as abnormal. By using a more “legitimate”-looking AppDomain name and proper arguments, you can reduce the anomaly score in certain behavioral detection engines.
 
 ## Getting a session
 ```
